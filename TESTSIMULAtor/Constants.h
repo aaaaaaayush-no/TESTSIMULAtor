@@ -7,11 +7,12 @@
 // ================================
 // CONSTANTS AND CONFIGURATION
 // ================================
-const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 800;
+const int SCREEN_WIDTH = 1800;
+const int SCREEN_HEIGHT = 880;
 const int SIDEBAR_WIDTH = 200;
 const float CONNECTION_POINT_RADIUS = 6.0f;
 const float CONNECTION_SNAP_DISTANCE = 15.0f;
+
 
 // ================================
 // ENUMS AND DATA STRUCTURES

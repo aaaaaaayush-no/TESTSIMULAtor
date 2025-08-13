@@ -14,7 +14,7 @@
 - 🖱 **Drag-and-drop** gate placement from a sidebar  
 - 🔗 **Wire connections** between gates with click-based selection  
 - 🧠 Real-time **logic evaluation** as you connect gates  
-- ⚡ Supports **AND, OR, NOT, NAND, NOR, XOR** gates  
+- ⚡ Supports **AND, OR, NOT, NAND, NOR** gates  
 - 📤 **Input/Output nodes** for simulation  
 - 🗑 Easily delete gates and wires  
 - 🎨 Clean, minimal UI with smooth interactions  

@@ -67,6 +67,12 @@ bool Gate::CollidesWith(const Gate& other) const {
 
 // Connection point helpers
 Vector2 Gate::GetInputPoint(int inputIndex) const {
+    // For INPUT and OUTPUT gates, center the connection point
+    if (type == GateType::INPUT || type == GateType::OUTPUT) {
+        return { position.x - 8, position.y + info.size.y * 0.5f };
+    }
+
+    // For other gates, use the original offset logic
     float offsetY = (inputIndex == 0) ? info.size.y * 0.33f : info.size.y * 0.66f;
     return { position.x - 8, position.y + offsetY };
 }

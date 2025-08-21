@@ -126,6 +126,7 @@
     <ClCompile Include="Gate.cpp" />
     <ClCompile Include="Sidebar.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Wire.cpp" />
     <ClCompile Include="WiringSystem.cpp" />
   </ItemGroup>
   <ItemGroup>

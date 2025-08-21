@@ -61,10 +61,10 @@ bool WiringSystem::HandleWireClick(Vector2 mousePos, const std::vector<std::uniq
                 // Create the wire
                 auto newWire = std::make_unique<Wire>(wireSourceGate, clickedPoint->gateIndex, clickedPoint->inputIndex);
 
-                // Calculate L-route for the new wire
+                // Calculate L-route with gate avoidance for the new wire
                 Vector2 startPos = gates[wireSourceGate]->GetOutputPoint();
                 Vector2 endPos = gates[clickedPoint->gateIndex]->GetInputPoint(clickedPoint->inputIndex);
-                newWire->CalculateLRoute(startPos, endPos);
+                newWire->CalculateLRoute(startPos, endPos, &gates);
 
                 wires.push_back(std::move(newWire));
             }
@@ -129,15 +129,15 @@ void WiringSystem::UpdateSignals(std::vector<std::unique_ptr<Gate>>& gates) {
         }
     }
 
-    // Final pass: Update wire states and recalculate routes if gates have moved
+    // Final pass: Update wire states and recalculate routes with gate avoidance if gates have moved
     for (auto& wire : wires) {
         if (wire->fromGateIndex < gates.size() && wire->toGateIndex < gates.size()) {
             wire->state = gates[wire->fromGateIndex]->output;
 
-            // Recalculate route in case gates have moved
+            // Recalculate route with gate avoidance in case gates have moved
             Vector2 startPos = gates[wire->fromGateIndex]->GetOutputPoint();
             Vector2 endPos = gates[wire->toGateIndex]->GetInputPoint(wire->toInputIndex);
-            wire->CalculateLRoute(startPos, endPos);
+            wire->CalculateLRoute(startPos, endPos, &gates);
         }
     }
 }
@@ -152,13 +152,13 @@ void WiringSystem::DrawWires(const std::vector<std::unique_ptr<Gate>>& gates, Ve
         }
     }
 
-    // Draw temporary wire being created with L-routing preview
+    // Draw temporary wire being created with L-routing preview and gate avoidance
     if (isCreatingWire && wireSourceGate >= 0 && wireSourceGate < gates.size()) {
         Vector2 startPos = gates[wireSourceGate]->GetOutputPoint();
 
-        // Create temporary wire for preview
+        // Create temporary wire for preview with gate avoidance
         Wire tempWire(wireSourceGate, -1, 0);
-        tempWire.CalculateLRoute(startPos, mousePos);
+        tempWire.CalculateLRoute(startPos, mousePos, &gates);
         tempWire.Draw(YELLOW);
     }
 }

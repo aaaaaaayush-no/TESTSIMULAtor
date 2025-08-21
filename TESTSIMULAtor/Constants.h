@@ -4,7 +4,6 @@
 #include "raylib.h"
 #include <map>
 
-// ================================
 // CONSTANTS AND CONFIGURATION
 // ================================
 const int SCREEN_WIDTH = 1800;
@@ -14,7 +13,6 @@ const float CONNECTION_POINT_RADIUS = 6.0f;
 const float CONNECTION_SNAP_DISTANCE = 15.0f;
 
 
-// ================================
 // ENUMS AND DATA STRUCTURES
 // ================================
 enum class GateType {
@@ -42,7 +40,6 @@ static const std::map<GateType, GateInfo> GATE_DATA = {
     {GateType::NOR, {{75, 50}, PURPLE, "NOR"}}
 };
 
-// ================================
 // CONNECTION POINT HELPER
 // ================================
 struct ConnectionPoint {

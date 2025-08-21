@@ -5,9 +5,6 @@
 #include "Constants.h"
 #include <vector>
 
-// ================================
-// SIDEBAR CLASS DECLARATION
-// ================================
 class Sidebar {
 public:
     // Available gate types in sidebar
@@ -23,4 +20,4 @@ public:
     GateType CheckButtonClick(Vector2 mousePos, bool& shouldDeselect, bool& shouldToggleMode, SimulatorMode mode);
 };
 
-#endif // SIDEBAR_H
+#endif

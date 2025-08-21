@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 
-// ================================
+
 // GATE CLASS DECLARATION
 // ================================
 class Gate {

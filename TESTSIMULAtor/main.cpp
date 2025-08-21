@@ -16,7 +16,7 @@ using namespace std;
 // ================================
 int main() {
     // Initialize window and settings
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Logic Gate Simulator with Wiring");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Logic Gate Simulator");
     SetTargetFPS(60);
 
     // ================================

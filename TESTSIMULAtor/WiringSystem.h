@@ -4,7 +4,7 @@
 #include "raylib.h"
 #include "Constants.h"
 #include "Gate.h"
-#include "Wire.h"
+#include "Wire.h"  // Make sure this is included for the new Wire class
 #include <vector>
 #include <memory>
 

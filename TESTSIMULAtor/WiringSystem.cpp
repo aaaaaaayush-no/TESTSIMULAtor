@@ -59,7 +59,14 @@ bool WiringSystem::HandleWireClick(Vector2 mousePos, const std::vector<std::uniq
 
             if (!alreadyConnected) {
                 // Create the wire
-                wires.push_back(std::make_unique<Wire>(wireSourceGate, clickedPoint->gateIndex, clickedPoint->inputIndex));
+                auto newWire = std::make_unique<Wire>(wireSourceGate, clickedPoint->gateIndex, clickedPoint->inputIndex);
+
+                // Calculate L-route for the new wire
+                Vector2 startPos = gates[wireSourceGate]->GetOutputPoint();
+                Vector2 endPos = gates[clickedPoint->gateIndex]->GetInputPoint(clickedPoint->inputIndex);
+                newWire->CalculateLRoute(startPos, endPos);
+
+                wires.push_back(std::move(newWire));
             }
         }
 
@@ -74,18 +81,9 @@ bool WiringSystem::HandleWireClick(Vector2 mousePos, const std::vector<std::uniq
 
 // Handle wire deletion
 bool WiringSystem::HandleWireDeletion(Vector2 mousePos, const std::vector<std::unique_ptr<Gate>>& gates) {
-    // Find wire close to mouse position
+    // Find wire close to mouse position using the new IsNearWirePath method
     for (int i = 0; i < wires.size(); i++) {
-        Vector2 startPos = gates[wires[i]->fromGateIndex]->GetOutputPoint();
-        Vector2 endPos = gates[wires[i]->toGateIndex]->GetInputPoint(wires[i]->toInputIndex);
-
-        // Simple distance check to wire line (approximate)
-        float distToStart = Vector2Distance(mousePos, startPos);
-        float distToEnd = Vector2Distance(mousePos, endPos);
-        float wireLength = Vector2Distance(startPos, endPos);
-
-        // If mouse is close to the wire line
-        if (distToStart + distToEnd <= wireLength + 10.0f) {
+        if (wires[i]->IsNearWirePath(mousePos, 10.0f)) {
             wires.erase(wires.begin() + i);
             return true;
         }
@@ -131,36 +129,37 @@ void WiringSystem::UpdateSignals(std::vector<std::unique_ptr<Gate>>& gates) {
         }
     }
 
-    // Final pass: Update wire states again to reflect any changes from logic gates
+    // Final pass: Update wire states and recalculate routes if gates have moved
     for (auto& wire : wires) {
-        if (wire->fromGateIndex < gates.size()) {
+        if (wire->fromGateIndex < gates.size() && wire->toGateIndex < gates.size()) {
             wire->state = gates[wire->fromGateIndex]->output;
+
+            // Recalculate route in case gates have moved
+            Vector2 startPos = gates[wire->fromGateIndex]->GetOutputPoint();
+            Vector2 endPos = gates[wire->toGateIndex]->GetInputPoint(wire->toInputIndex);
+            wire->CalculateLRoute(startPos, endPos);
         }
     }
 }
 
 // Draw all wires
 void WiringSystem::DrawWires(const std::vector<std::unique_ptr<Gate>>& gates, Vector2 mousePos) {
-    // Draw existing wires
+    // Draw existing wires using their L-routing
     for (const auto& wire : wires) {
         if (wire->fromGateIndex < gates.size() && wire->toGateIndex < gates.size()) {
-            Vector2 startPos = gates[wire->fromGateIndex]->GetOutputPoint();
-            Vector2 endPos = gates[wire->toGateIndex]->GetInputPoint(wire->toInputIndex);
-
             Color wireColor = wire->state ? RED : DARKGRAY;
-            DrawLineEx(startPos, endPos, 3.0f, wireColor);
-
-            // Draw small circles at connection points
-            DrawCircleV(startPos, 3, wireColor);
-            DrawCircleV(endPos, 3, wireColor);
+            wire->Draw(wireColor);
         }
     }
 
-    // Draw temporary wire being created
+    // Draw temporary wire being created with L-routing preview
     if (isCreatingWire && wireSourceGate >= 0 && wireSourceGate < gates.size()) {
         Vector2 startPos = gates[wireSourceGate]->GetOutputPoint();
-        DrawLineEx(startPos, mousePos, 3.0f, YELLOW);
-        DrawCircleV(startPos, 3, YELLOW);
+
+        // Create temporary wire for preview
+        Wire tempWire(wireSourceGate, -1, 0);
+        tempWire.CalculateLRoute(startPos, mousePos);
+        tempWire.Draw(YELLOW);
     }
 }
 

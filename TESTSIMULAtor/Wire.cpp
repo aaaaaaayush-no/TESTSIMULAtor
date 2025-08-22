@@ -3,6 +3,34 @@
 #include <algorithm>
 #include <cmath>
 
+// Draw the wire with L-routing
+void Wire::Draw(Color wireColor) const {
+    if (waypoints.size() < 2) return;
+
+    // Draw smooth line segments between waypoints
+    for (size_t i = 0; i < waypoints.size() - 1; i++) {
+        // Use thicker lines with rounded caps for smoother appearance
+        DrawLineEx(waypoints[i], waypoints[i + 1], 4.0f, wireColor);
+    }
+
+    // Draw smooth connection points with gradient effect
+    if (!waypoints.empty()) {
+        // Start point - slightly larger with soft edge
+        DrawCircleV(waypoints.front(), 4, wireColor);
+        DrawCircleV(waypoints.front(), 3, ColorBrightness(wireColor, 0.3f));
+        
+        // End point - slightly larger with soft edge
+        DrawCircleV(waypoints.back(), 4, wireColor);
+        DrawCircleV(waypoints.back(), 3, ColorBrightness(wireColor, 0.3f));
+    }
+
+    // Draw smooth corner points with rounded appearance
+    for (size_t i = 1; i < waypoints.size() - 1; i++) {
+        DrawCircleV(waypoints[i], 3, wireColor);
+        DrawCircleV(waypoints[i], 2, ColorBrightness(wireColor, 0.2f));
+    }
+}
+
 // Simple L-routing without gate avoidance
 void Wire::CalculateSimpleLRoute(Vector2 start, Vector2 end) {
     float dx = end.x - start.x;

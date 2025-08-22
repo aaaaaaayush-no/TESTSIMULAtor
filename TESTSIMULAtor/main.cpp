@@ -1,4 +1,4 @@
-#include "raylib.h"
+﻿#include "raylib.h"
 #include "raymath.h"
 #include "Constants.h"
 #include "Gate.h"
@@ -15,9 +15,20 @@ using namespace std;
 // MAIN FUNCTION
 // ================================
 int main() {
+    // Enable anti-aliasing for smoother graphics BEFORE window initialization
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    
     // Initialize window and settings
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Logic Gate Simulator");
     SetTargetFPS(60);
+    
+    // Load gate textures
+    LoadGateTextures();
+    
+    std::cout << "Gate textures loaded - checking texture IDs:" << std::endl;
+    for (const auto& pair : GATE_DATA) {
+        std::cout << "  " << pair.second.label << ": texture ID = " << pair.second.texture.id << std::endl;
+    }
 
     // ================================
     // GAME STATE VARIABLES
@@ -188,8 +199,27 @@ int main() {
         DrawText("Controls: DEL = Delete selected gate, Right-click = Delete wire",
             SIDEBAR_WIDTH + 10, SCREEN_HEIGHT - 30, 12, DARKGRAY);
 
+        // Debug texture info
+        if (IsKeyDown(KEY_F1)) {
+            int y = 60;
+            DrawText("TEXTURE DEBUG (F1)", SIDEBAR_WIDTH + 500, 10, 20, RED);
+            for (const auto& pair : GATE_DATA) {
+                std::string info = pair.second.label;
+                info += " Texture ID: " + std::to_string(pair.second.texture.id);
+                if (pair.second.texture.id != 0) {
+                    info += " (" + std::to_string(pair.second.texture.width) + "x" 
+                         + std::to_string(pair.second.texture.height) + ")";
+                }
+                DrawText(info.c_str(), SIDEBAR_WIDTH + 500, y, 10, BLACK);
+                y += 20;
+            }
+        }
+
         EndDrawing();
     }
+
+    // Unload resources
+    UnloadGateTextures();
 
     // Cleanup
     CloseWindow();

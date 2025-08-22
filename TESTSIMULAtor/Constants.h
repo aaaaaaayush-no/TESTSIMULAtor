@@ -27,18 +27,13 @@ struct GateInfo {
     Vector2 size;
     Color color;
     const char* label;
+    const char* imagePath;  // Path to image file
+    Texture2D texture;      // Texture will be loaded at runtime
 };
 
-// Lookup table for gate properties
-static const std::map<GateType, GateInfo> GATE_DATA = {
-    {GateType::INPUT, {{60, 40}, LIGHTGRAY, "INP"}},
-    {GateType::OUTPUT, {{60, 40}, SKYBLUE, "OUT"}},
-    {GateType::AND, {{75, 50}, DARKGREEN, "AND"}},
-    {GateType::OR, {{75, 50}, DARKBLUE, "OR"}},
-    {GateType::NOT, {{75, 50}, MAROON, "NOT"}},
-    {GateType::NAND, {{75, 50}, LIME, "NAND"}},
-    {GateType::NOR, {{75, 50}, PURPLE, "NOR"}}
-};
+// Lookup table for gate properties - DECLARATION ONLY
+// Note: INPUT and OUTPUT don't have images, all others use the provided paths
+extern std::map<GateType, GateInfo> GATE_DATA;
 
 // CONNECTION POINT HELPER
 // ================================
@@ -52,5 +47,9 @@ struct ConnectionPoint {
         : position(pos), isInput(input), gateIndex(gate), inputIndex(idx) {
     }
 };
+
+// Function declarations for texture management
+void LoadGateTextures();
+void UnloadGateTextures();
 
 #endif // CONSTANTS_H

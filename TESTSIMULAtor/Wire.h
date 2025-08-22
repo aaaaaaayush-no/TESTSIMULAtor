@@ -65,25 +65,7 @@ public:
     }
 
     // Draw the wire with L-routing
-    void Draw(Color wireColor) const {
-        if (waypoints.size() < 2) return;
-
-        // Draw line segments between waypoints
-        for (size_t i = 0; i < waypoints.size() - 1; i++) {
-            DrawLineEx(waypoints[i], waypoints[i + 1], 3.0f, wireColor);
-        }
-
-        // Draw connection points
-        if (!waypoints.empty()) {
-            DrawCircleV(waypoints.front(), 3, wireColor);
-            DrawCircleV(waypoints.back(), 3, wireColor);
-        }
-
-        // Draw corner points
-        for (size_t i = 1; i < waypoints.size() - 1; i++) {
-            DrawCircleV(waypoints[i], 2, wireColor);
-        }
-    }
+    void Draw(Color wireColor) const;
 
     // Check if mouse position is near the wire path
     bool IsNearWirePath(Vector2 mousePos, float threshold = 10.0f) const {

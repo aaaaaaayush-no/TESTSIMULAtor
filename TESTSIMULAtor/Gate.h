@@ -7,6 +7,7 @@
 #include "Wire.h"
 #include <vector>
 #include <memory>
+#include <ostream>
 
 
 // GATE CLASS DECLARATION
@@ -56,5 +57,7 @@ public:
     // Rendering
     void Draw(bool preview = false, bool highlight = false) const;
 };
+
+std::ostream& operator<<(std::ostream& os, const GateType& type);
 
 #endif // GATE_H

@@ -34,12 +34,51 @@ void Sidebar::Draw(bool hasSelection, GateType selectedType, SimulatorMode mode)
             const GateInfo& gateInfo = GATE_DATA.at(gateTypes[i]);
             bool isSelected = hasSelection && selectedType == gateTypes[i];
 
-            DrawRectangleRec(buttonRect, gateInfo.color);
-            DrawRectangleLinesEx(buttonRect, isSelected ? 3 : 2, isSelected ? YELLOW : BLACK);
-
-            int textWidth = MeasureText(gateInfo.label, 14);
-            DrawText(gateInfo.label, buttonRect.x + (buttonRect.width - textWidth) / 2,
-                buttonRect.y + 13, 14, WHITE);
+            // Draw gate image if available
+            if (gateInfo.texture.id != 0) {
+                // Don't draw background or border for textured gates to preserve transparency
+                // Scale image to fit inside button while preserving aspect ratio
+                Rectangle sourceRect = { 0, 0, (float)gateInfo.texture.width, (float)gateInfo.texture.height };
+                Rectangle destRect = {
+                    buttonRect.x + 5,  // Add small margin
+                    buttonRect.y + 5,
+                    buttonRect.width - 10,
+                    buttonRect.height - 10
+                };
+                
+                DrawTexturePro(
+                    gateInfo.texture,
+                    sourceRect,
+                    destRect,
+                    {0, 0},  // Origin (top-left)
+                    0.0f,    // Rotation
+                    WHITE    // Tint
+                );
+                
+                // Draw output pin for NAND, NOR, and NOT gates only (textured gates)
+                if (gateTypes[i] == GateType::NAND || gateTypes[i] == GateType::NOR || 
+                    gateTypes[i] == GateType::NOT) {
+                    Vector2 outputPos = { destRect.x + destRect.width + 3, destRect.y + destRect.height * 0.5f };
+                    DrawCircleV(outputPos, 3, WHITE); // Filled with white
+                    DrawCircleLinesV(outputPos, 3, BLACK); // Black border only
+                }
+                
+                // Only draw selection indicator if selected (subtle highlight around image)
+                if (isSelected) {
+                    DrawRectangleLinesEx(destRect, 2, YELLOW);
+                }
+            } else {
+                // If no image, draw background color and show the label
+                DrawRectangleRec(buttonRect, gateInfo.color);
+                int textWidth = MeasureText(gateInfo.label, 14);
+                DrawText(gateInfo.label, buttonRect.x + (buttonRect.width - textWidth) / 2,
+                    buttonRect.y + 13, 14, WHITE);
+                
+                // No output pin for INPUT gates in sidebar - keep it clean
+                
+                // Draw border for non-textured gates
+                DrawRectangleLinesEx(buttonRect, isSelected ? 3 : 2, isSelected ? YELLOW : BLACK);
+            }
 
             y += 60;
         }

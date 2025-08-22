@@ -123,9 +123,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Gate.cpp" />
     <ClCompile Include="Sidebar.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Wire.cpp" />
     <ClCompile Include="WiringSystem.cpp" />
   </ItemGroup>

@@ -67,7 +67,7 @@ float Wire::DistanceToLineSegment(Vector2 point, Vector2 lineStart, Vector2 line
     return Vector2Distance(point, projection);
 }
 
-// Calculate route that avoids gates
+// Simple but effective gate avoidance
 Vector2 Wire::CalculateAvoidanceRoute(Vector2 start, Vector2 end, const std::vector<std::unique_ptr<Gate>>& gates, float clearance) const {
     float dx = end.x - start.x;
     float dy = end.y - start.y;
@@ -88,18 +88,18 @@ Vector2 Wire::CalculateAvoidanceRoute(Vector2 start, Vector2 end, const std::vec
         }
     }
 
-    // Try going around obstacles with smaller offsets first
-    std::vector<float> offsets = { 30.0f, 60.0f, 100.0f, -30.0f, -60.0f, -100.0f };
+    // Try going around obstacles with offsets
+    std::vector<float> offsets = { 60.0f, 120.0f, 180.0f, -60.0f, -120.0f, -180.0f };
 
     for (float offset : offsets) {
         for (float pct : percentages) {
-            // Try horizontal-first with offset
+            // Try horizontal-first with vertical offset
             Vector2 candidate = { start.x + dx * pct, start.y + offset };
             if (!DoesRouteIntersectGates(start, candidate, { candidate.x, end.y }, end, gates, clearance)) {
                 return candidate;
             }
 
-            // Try vertical-first with offset
+            // Try vertical-first with horizontal offset
             candidate = { start.x + offset, start.y + dy * pct };
             if (!DoesRouteIntersectGates(start, candidate, { end.x, candidate.y }, end, gates, clearance)) {
                 return candidate;
@@ -119,7 +119,7 @@ bool Wire::DoesRouteIntersectGates(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p
         DoesLineIntersectGates(p3, p4, gates, clearance);
 }
 
-// Check if a line segment intersects with any gates
+// Check if a line segment intersects with any gates  
 bool Wire::DoesLineIntersectGates(Vector2 start, Vector2 end, const std::vector<std::unique_ptr<Gate>>& gates, float clearance) const {
     for (int i = 0; i < gates.size(); i++) {
         // Skip the source and destination gates
@@ -154,23 +154,8 @@ Vector2 Wire::FindAvoidanceRoute(Vector2 start, Vector2 end, const std::vector<s
     float dx = end.x - start.x;
     float dy = end.y - start.y;
 
-    // Find the gates that are blocking the direct path
-    std::vector<Rectangle> obstacles;
-    for (int i = 0; i < gates.size(); i++) {
-        if (i == fromGateIndex || i == toGateIndex) continue;
-
-        Rectangle gateBounds = gates[i]->GetBounds();
-        Rectangle expandedBounds = {
-            gateBounds.x - clearance,
-            gateBounds.y - clearance,
-            gateBounds.width + 2 * clearance,
-            gateBounds.height + 2 * clearance
-        };
-        obstacles.push_back(expandedBounds);
-    }
-
     // Try going around obstacles by adjusting the intermediate point
-    std::vector<float> offsets = { 50.0f, 100.0f, 150.0f, -50.0f, -100.0f, -150.0f };
+    std::vector<float> offsets = { 80.0f, 160.0f, 240.0f, -80.0f, -160.0f, -240.0f };
 
     for (float offset : offsets) {
         // Try horizontal-first with offset

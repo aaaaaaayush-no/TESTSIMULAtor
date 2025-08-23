@@ -38,27 +38,23 @@ public:
         // If no gates provided, use simple L-routing
         if (!gates || gates->empty()) {
             CalculateSimpleLRoute(start, end);
+            waypoints.push_back(end);
             return;
         }
 
-        // Calculate intermediate points for L-shaped routing with gate avoidance
-        float dx = end.x - start.x;
-        float dy = end.y - start.y;
+        const float CLEARANCE = 15.0f; // Reasonable clearance for gate avoidance
 
-        const float CLEARANCE = 5.0f; // Minimal clearance - much less aggressive
+        // Try simple avoidance routing
+        Vector2 avoidanceRoute = CalculateAvoidanceRoute(start, end, *gates, CLEARANCE);
 
-        // Try different routing strategies
-        Vector2 bestRoute = CalculateAvoidanceRoute(start, end, *gates, CLEARANCE);
-
-        if (bestRoute.x != -1) {
-            // Use the calculated avoidance route
-            waypoints.push_back(bestRoute);
-            waypoints.push_back({ bestRoute.x, end.y });
+        if (avoidanceRoute.x != -1) {
+            // Use the avoidance route
+            waypoints.push_back(avoidanceRoute);
+            waypoints.push_back({ avoidanceRoute.x, end.y });
         }
         else {
             // Fallback to simple L-routing if avoidance fails
             CalculateSimpleLRoute(start, end);
-            return;
         }
 
         waypoints.push_back(end);
@@ -103,6 +99,9 @@ private:
 
     // Helper function to check distance from point to line segment
     float DistanceToLineSegment(Vector2 point, Vector2 lineStart, Vector2 lineEnd) const;
+
+    // Validate that all segments are orthogonal (no diagonals)
+    void ValidateOrthogonalRouting();
 };
 
 #endif // WIRE_H

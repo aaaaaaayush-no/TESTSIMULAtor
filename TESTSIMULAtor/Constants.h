@@ -12,6 +12,10 @@ const int SIDEBAR_WIDTH = 200;
 const float CONNECTION_POINT_RADIUS = 6.0f;
 const float CONNECTION_SNAP_DISTANCE = 15.0f;
 
+// Grid system for visual aid and alignment
+const int GRID_SIZE = 30;
+const bool SHOW_GRID_DEFAULT = true;
+
 
 // ENUMS AND DATA STRUCTURES
 // ================================

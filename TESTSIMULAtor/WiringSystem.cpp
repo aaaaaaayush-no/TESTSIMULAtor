@@ -128,18 +128,6 @@ void WiringSystem::UpdateSignals(std::vector<std::unique_ptr<Gate>>& gates) {
             gate->ComputeOutput();
         }
     }
-
-    // Final pass: Update wire states and recalculate routes with gate avoidance if gates have moved
-    for (auto& wire : wires) {
-        if (wire->fromGateIndex < gates.size() && wire->toGateIndex < gates.size()) {
-            wire->state = gates[wire->fromGateIndex]->output;
-
-            // Recalculate route with gate avoidance in case gates have moved
-            Vector2 startPos = gates[wire->fromGateIndex]->GetOutputPoint();
-            Vector2 endPos = gates[wire->toGateIndex]->GetInputPoint(wire->toInputIndex);
-            wire->CalculateLRoute(startPos, endPos, &gates);
-        }
-    }
 }
 
 // Draw all wires
@@ -217,5 +205,19 @@ void WiringSystem::UpdateWireIndices(int removedIndex) {
     for (auto& wire : wires) {
         if (wire->fromGateIndex > removedIndex) wire->fromGateIndex--;
         if (wire->toGateIndex > removedIndex) wire->toGateIndex--;
+    }
+}
+
+// Recalculate wire routes for a specific gate (when it moves)
+void WiringSystem::RecalculateWiresForGate(int gateIndex, const std::vector<std::unique_ptr<Gate>>& gates) {
+    for (auto& wire : wires) {
+        // Recalculate route if this wire is connected to the moved gate
+        if (wire->fromGateIndex == gateIndex || wire->toGateIndex == gateIndex) {
+            if (wire->fromGateIndex < gates.size() && wire->toGateIndex < gates.size()) {
+                Vector2 startPos = gates[wire->fromGateIndex]->GetOutputPoint();
+                Vector2 endPos = gates[wire->toGateIndex]->GetInputPoint(wire->toInputIndex);
+                wire->CalculateLRoute(startPos, endPos, &gates);
+            }
+        }
     }
 }

@@ -42,6 +42,7 @@ int main() {
     GateType selectedGateType = GateType::INPUT;
     int draggedGateIndex = -1;
     Vector2 dragOffset = { 0, 0 };
+    bool showGrid = SHOW_GRID_DEFAULT;
 
     // ================================
     // MAIN GAME LOOP
@@ -96,6 +97,13 @@ int main() {
                         Vector2 gateSize = GATE_DATA.at(selectedGateType).size;
                         Vector2 newPos = { mousePos.x - gateSize.x / 2, mousePos.y - gateSize.y / 2 };
 
+                        // Optional grid snapping (like Proteus)
+                        if (showGrid && IsKeyDown(KEY_LEFT_SHIFT)) {
+                            // Snap to grid when holding Shift
+                            newPos.x = ((int)(newPos.x / GRID_SIZE)) * GRID_SIZE;
+                            newPos.y = ((int)(newPos.y / GRID_SIZE)) * GRID_SIZE;
+                        }
+
                         auto newGate = make_unique<Gate>(selectedGateType, newPos);
 
                         // Check if we can place it (no overlaps)
@@ -127,8 +135,16 @@ int main() {
         // Handle gate dragging (only in placement mode)
         if (currentMode == SimulatorMode::PLACEMENT) {
             if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && draggedGateIndex != -1) {
+                Vector2 oldPosition = gates[draggedGateIndex]->position;
                 gates[draggedGateIndex]->position.x = mousePos.x - dragOffset.x;
                 gates[draggedGateIndex]->position.y = mousePos.y - dragOffset.y;
+                
+                // Only recalculate wire routes if the gate actually moved
+                Vector2 newPosition = gates[draggedGateIndex]->position;
+                if (Vector2Distance(oldPosition, newPosition) > 1.0f) {
+                    // Recalculate routes for wires connected to this gate
+                    wiringSystem.RecalculateWiresForGate(draggedGateIndex, gates);
+                }
             }
 
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -144,6 +160,11 @@ int main() {
             draggedGateIndex = -1;
         }
 
+        // Handle grid toggle with G key
+        if (IsKeyPressed(KEY_G)) {
+            showGrid = !showGrid;
+        }
+
         // ================================
         // LOGIC COMPUTATION
         // ================================
@@ -154,6 +175,28 @@ int main() {
         // ================================
         BeginDrawing();
         ClearBackground(LIGHTGRAY);
+
+        // Draw grid if enabled (like Proteus)
+        if (showGrid) {
+            // Draw vertical grid lines
+            for (int x = SIDEBAR_WIDTH; x < SCREEN_WIDTH; x += GRID_SIZE) {
+                DrawLine(x, 0, x, SCREEN_HEIGHT, ColorAlpha(GRAY, 0.3f));
+            }
+            
+            // Draw horizontal grid lines
+            for (int y = 0; y < SCREEN_HEIGHT; y += GRID_SIZE) {
+                DrawLine(SIDEBAR_WIDTH, y, SCREEN_WIDTH, y, ColorAlpha(GRAY, 0.3f));
+            }
+            
+            // Draw thicker lines every 5 grid units (like Proteus major grid)
+            for (int x = SIDEBAR_WIDTH; x < SCREEN_WIDTH; x += GRID_SIZE * 5) {
+                DrawLine(x, 0, x, SCREEN_HEIGHT, ColorAlpha(DARKGRAY, 0.5f));
+            }
+            
+            for (int y = 0; y < SCREEN_HEIGHT; y += GRID_SIZE * 5) {
+                DrawLine(SIDEBAR_WIDTH, y, SCREEN_WIDTH, y, ColorAlpha(DARKGRAY, 0.5f));
+            }
+        }
 
         // Draw sidebar
         sidebar.Draw(hasSelectedGate, selectedGateType, currentMode);
@@ -192,11 +235,13 @@ int main() {
         else {
             statusText += " | Click output then input to connect";
         }
-
+        
+        statusText += " | Grid: " + string(showGrid ? "ON" : "OFF");
+        
         DrawText(statusText.c_str(), SIDEBAR_WIDTH + 10, 10, 16, BLACK);
 
         // Show controls
-        DrawText("Controls: DEL = Delete selected gate, Right-click = Delete wire",
+        DrawText("Controls: DEL = Delete selected gate, Right-click = Delete wire, G = Toggle grid",
             SIDEBAR_WIDTH + 10, SCREEN_HEIGHT - 30, 12, DARKGRAY);
 
         // Debug texture info

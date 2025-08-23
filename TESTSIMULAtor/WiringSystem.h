@@ -42,6 +42,9 @@ public:
 
     // Update wire indices when gates are rearranged
     void UpdateWireIndices(int removedIndex);
+
+    // Recalculate wire routes for a specific gate (when it moves)
+    void RecalculateWiresForGate(int gateIndex, const std::vector<std::unique_ptr<Gate>>& gates);
 };
 
 #endif // WIRING_SYSTEM_H
